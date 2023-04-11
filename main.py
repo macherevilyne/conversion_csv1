@@ -35,28 +35,44 @@ existing_databases = [database[0] for database in databases]
 db_name = config['mysql']['database']
 
 
-# If the required database already exists, we connect to it
+# If the required database already exists, prompt user to decide whether to use it or not
 if db_name in existing_databases:
-    cnx = mysql.connector.connect(
-        host=config['mysql']['host'],
-        user=config['mysql']['user'],
-        password=config['mysql']['password'],
-        database=config['mysql']['database']
-    )
-    print('База данных {}'.format(db_name),
-          "уже существует.Подключение к базе данных {} успешно выполнено".format(db_name))
+    while True:
+        user_input = input("Database {} already exists. Do you want to use it? (y/n): ".format(db_name)).lower()
+        if user_input == 'y':
+            cnx = mysql.connector.connect(
+                host=config['mysql']['host'],
+                user=config['mysql']['user'],
+                password=config['mysql']['password'],
+                database=config['mysql']['database']
+            )
+            print("Connection to database {} was successful".format(db_name))
+            break
+        elif user_input == 'n':
+            print("Stopping program...")
+            exit()
+        else:
+            print("Invalid input. Please enter 'y' or 'n'")
 
-# If the required database does not exist, create it and connect to it
+# If the required database does not exist, prompt user to create a new one or not
 else:
-    cursor.execute("CREATE DATABASE {}".format(db_name))
-    cnx = mysql.connector.connect(
-        host=config['mysql']['host'],
-        user=config['mysql']['user'],
-        password=config['mysql']['password'],
-        database=config['mysql']['database']
-    )
-    print("Database {} was successfully created and connected to".format(db_name))
-
+    while True:
+        user_input = input("Database {} does not exist. Do you want to create it? (y/n): ".format(db_name)).lower()
+        if user_input == 'y':
+            cursor.execute("CREATE DATABASE {}".format(db_name))
+            cnx = mysql.connector.connect(
+                host=config['mysql']['host'],
+                user=config['mysql']['user'],
+                password=config['mysql']['password'],
+                database=config['mysql']['database']
+            )
+            print("Database {} was successfully created and connected to".format(db_name))
+            break
+        elif user_input == 'n':
+            print("Stopping program...")
+            exit()
+        else:
+            print("Invalid input. Please enter 'y' or 'n'")
 
 
 # Creating a Table in a MySQL Database
@@ -107,13 +123,21 @@ cnx.commit()
 """CHANGING NAME TABLE:22q2 in INSERT INTO sql TO THE CURRENT DATA TO CONNECT TO YOUR DATABASE"""
 
 # Retrieving a list of CSV files from a specified directory
-directory = config['mysql']['directory']
-files = os.listdir(directory)
+path = config['mysql']['path']
+
+try:
+    if not os.path.isdir(path):
+        raise FileNotFoundError(f"Path '{path}' does not exist.Check that the path in the configuration file is correct")
+except FileNotFoundError as e:
+    print(f"Error: {e}")
+    exit()
+
+files = os.listdir(path)
 csv_files = [f for f in files if f.endswith('.csv')]
 
 # Read CSV files and write data to MySQL database
 for file in csv_files:
-    file_path = os.path.join(directory, file)
+    file_path = os.path.join(path, file)
     df = pd.read_csv(file_path, low_memory=False)
     df = df.where(pd.notnull(df), '')
     print(f"TOTAL RECORDS TO BE MADE FROM DATAFRAME TO DATABASE:", len(df))
