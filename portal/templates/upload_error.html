@@ -1,0 +1,10 @@
+  <h1>Error during upload</h1>
+  <h3>Possible reasons:</h3>
+  <ul>
+    <li>{{ error_msg }}</li>
+    <li>The parameters were passed in the wrong format</li>
+    <li>A typo in the request</li>
+  </ul>
+<form method="get" action="{% url 'connect_use_db' %}">
+  <button type="submit">Back</button>
+</form>
