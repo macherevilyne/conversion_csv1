@@ -13,3 +13,9 @@ class UploadedFile(models.Model):
 
     def __str__(self):
         return f"{self.file} uploaded by {self.user} at {self.uploaded_at}"
+
+"""This is a model for the admin panel so that the administrator can create a checklist"""
+class UploadedFileChecklist(models.Model):
+    file_name = models.CharField(max_length=255)
+    def __str__(self):
+        return self.file_name
