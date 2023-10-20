@@ -22,22 +22,11 @@ saves the file. Next, CSV files are read from the specified directory and data i
 
 
 def connect_use_db(request):
-
-
-
-    # form dowload files
-
-
     if request.method == 'POST':
-
         form = UploadFileForm(request.POST, request.FILES)
-
-
         if form.is_valid():
             uploaded_file = request.FILES['file']
-
             fs = FileSystemStorage()
-
             # Retrieving a list of CSV files from a specified directory
             path = 'h:\IT\First_project'
 
@@ -58,25 +47,12 @@ def connect_use_db(request):
                 print(f"Error: {e}")
                 exit()
 
-
-
-
-
-
-
             # Reading all files in a directory with the csv extension
             files = os.listdir(path)
 
             csv_files = [f for f in files if f.endswith('.csv') ]
 
-
-
-
             # Read CSV files and write data to MySQL database
-
-
-
-
 
 
             last_uploaded_file = uploaded_file.name
@@ -119,8 +95,6 @@ def connect_use_db(request):
             db_name = config['conversion_csv']['DATABASE']
 
 
-
-
             table_name = None
             current_file_path = None
             additional_data_loaded = False
@@ -130,26 +104,15 @@ def connect_use_db(request):
 
                 # Checking the existence of the database, if the database does not exist, then creates a database and connects if it exists, then connects
 
-
-
                 cnx = connection_to_db(config, db_name)
-
-
-
-
-
                 cursor = cnx.cursor()
-                print('Начало заполнения')
 
                 print('Начало заполнения. Вся коллекция', csv_files)
-
-
 
                 try:
                     print('Второй комент')
                     print(uploaded_file.name)
                     print(csv_files)
-
 
                     print('Третий комент')
                     for file in csv_files:
@@ -163,14 +126,8 @@ def connect_use_db(request):
                         print(current_file_path)
 
 
-
-
                         if file == 'AdditionalData.csv' and not additional_data_loaded:
                             create_table_additionaldata(cursor, cnx)
-
-
-
-
                         else:
                             create_table_four(cursor, cnx, table_name)
 
@@ -179,28 +136,14 @@ def connect_use_db(request):
                         additional_data_loaded = False
                         print(additional_data_loaded, 'незнаю зачем')
 
-
-
                         if file == 'AdditionalData.csv' and not additional_data_loaded:
                             records_inserted += insert_additionaldata(current_file_path, cursor)
-
-
-
-
-
-
-
                         else:
-
                             records_inserted += insert_four(current_file_path, cursor, table_name)
-
 
                     descconnection_to_db(cnx,cursor)
 
-
-
-                    return redirect(
-                                            reverse('upload_success') + f'?uploaded_file={uploaded_file}&records_inserted=')
+                    return redirect(reverse('upload_success') + f'?uploaded_file={uploaded_file}&records_inserted=')
 
 
                 except mysql.connector.errors.ProgrammingError as error:
