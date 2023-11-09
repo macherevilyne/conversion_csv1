@@ -14,23 +14,29 @@
     <h1>Files</h1>
 
 
-    {% for file in all_files %}
-
-    <h3>
-
-        {% for uploaded_file in checklist %}
-        {% if file.file_name == uploaded_file.file %}
-        <span style="color: #00BFFF;"> ✔ &nbsp {{ file }} - File already uploaded </span>
-        {% endif %}
-        {% endfor %}
-
-        {% if file.file_name not in uploaded_files %}
-        <span style="color: #00BFFF;">○ &nbsp {{ file }} - File not uploaded </span>
-        {% endif %}
 
 
-    </h3>
-    {% endfor %}
+{% for file in expected_files_all %}
+
+
+<h3>
+
+    {% if file in uploaded_files_names %}
+
+    <span style="color: #00BFFF;"> ✔ &nbsp {{ file }} - File already uploaded </span>
+    {% endif %}
+
+
+    {% if file not in uploaded_files_names %}
+    <span style="color: #00BFFF;">○ &nbsp {{ file }} - File not uploaded </span>
+    {% endif %}
+
+
+</h3>
+{% endfor %}
+
+
+
 
 
     {% if form.errors %}
