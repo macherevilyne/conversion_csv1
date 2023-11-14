@@ -231,9 +231,9 @@ def insert_four(current_file_path, cursor, table_name):
 
 
 
-def descconnection_to_db(cnx, cursor):
+def discconnection_to_db(cnx, cursor):
 
-    print('descconnection_db')
+    print('discconnection_to_db')
 
     cnx.commit()
     cursor.close()

@@ -30,10 +30,7 @@ def connect_use_db(request):
     current_quarter = (datetime.now().month - 1) // 3 + 1
     current_quarter_string = f'{current_year % 100}Q{current_quarter}'
 
-    uploaded_files = []
-
     uploaded_files_names = []
-
     expected_files_all = UploadedFileChecklist.objects.filter(
         Q(file_name__contains=current_quarter_string) | Q(file_name='AdditionalData.csv')
     ).values_list('file_name', flat=True)
@@ -42,6 +39,7 @@ def connect_use_db(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
+
             uploaded_file = request.FILES['file']
             fs = FileSystemStorage()
             path = 'h:\IT\First_project'
@@ -64,6 +62,7 @@ def connect_use_db(request):
             print(csv_files, 'csv_files')
 
 
+
             file_upload = UploadedFile.objects.create(
                 user=request.user,
                 file=uploaded_file.name,
@@ -74,8 +73,10 @@ def connect_use_db(request):
 
 
             uploaded_files = UploadedFile.objects.all()
+            print(uploaded_files)
 
             uploaded_files_names = [uploaded_file.file for uploaded_file in uploaded_files]
+
             print(uploaded_files_names, '--------------uploaded_files_names')
 
             expected_files_without_additionaldata = [file for file in expected_files_all if file != 'AdditionalData.csv']
@@ -141,14 +142,17 @@ def connect_use_db(request):
                     if is_additionadata_uploaded:
                         print('Начинаем заполнять is_additionadata_uploaded')
 
-
                         current_file_path = os.path.join(path, 'AdditionalData.csv')
                         print('Путь current_file_path', current_file_path)
                         create_table_additionaldata(cursor, cnx)
                         records_inserted += insert_additionaldata(current_file_path, cursor)
 
 
-                    descconnection_to_db(cnx, cursor)
+                    discconnection_to_db(cnx, cursor)
+
+
+
+
                     return redirect(
                         reverse('upload_success') + f'?uploaded_file={uploaded_file}&records_inserted=')
 
@@ -159,7 +163,6 @@ def connect_use_db(request):
                 except mysql.connector.errors.ProgrammingError as error:
                     print('Срабатывает исключение 1')
                     error_msg = str(error)
-                    cursor.execute(f"USE {db_name}")
                     print('Срабатывает исключение 2')
                     cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
                     print(f"Error during SQL execution: {error_msg}")
@@ -183,104 +186,16 @@ def connect_use_db(request):
                         print(f"Error: {error}")
 
 
-            #
-            # if is_additionadata_uploaded:
-            #     print('Если загруженн Additionaldata.csv')
-            #     cnx = connection_to_db(config, db_name)
-            #     cursor = cnx.cursor()
-            #     try:
-            #
-            #         if uploaded_file.name == 'AdditionalData.csv':
-            #             desired_files = filter(lambda file: "AdditionalData.csv" in file, csv_files)
-            #             print('---DESIRED_files', desired_files)
-            #             file = next(desired_files, None)
-            #             print('FILE' ,file)
-            #
-            #
-            #
-            #             print('Четрвый комент, Additionaldata')
-            #
-            #             table_name = 'Additionaldata'
-            #
-            #
-            #             current_file_path = os.path.join(path, file)
-            #             print('----CURRENT FILE PATH',current_file_path)
-            #
-            #
-            #             create_table_additionaldata(cursor, cnx)
-            #
-            #
-            #
-            #             records_inserted = 0
-            #             additional_data_loaded = False
-            #             print(additional_data_loaded, 'незнаю зачем')
-            #
-            #
-            #             records_inserted += insert_additionaldata(current_file_path, cursor)
-            #
-            #
-            #
-            #             descconnection_to_db(cnx, cursor)
-            #
-            #             return redirect(reverse('upload_success') + f'?uploaded_file={uploaded_file}&records_inserted=')
-            #
-            #
-            #     except mysql.connector.errors.ProgrammingError as error:
-            #         print('Срабатывает исключение 1')
-            #         error_msg = str(error)
-            #         cursor.execute(f"USE {db_name}")
-            #         print('Срабатывает исключение 2')
-            #         cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
-            #         print(f"Error during SQL execution: {error_msg}")
-            #         print('Срабатывает исключение 3')
-            #         os.remove(current_file_path)
-            #         return render(request, 'upload_error.html', {'error_msg': error_msg})
-            #
-            #
-            #     except mysql.connector.IntegrityError as error:
-            #         error_msg = str(error)
-            #         print('Срабатывает исключение 4')
-            #         if error.errno == 1062:  # код ошибки дубликата ключа
-            #             print('Срабатывает исключение 5')
-            #             print(
-            #                 f' Uploaded file: {uploaded_file.name} THERE ARE DUPLICATE RECORDS ON DOWNLOAD, NO DUPLICATES WILL BE ADDED')
-            #
-            #             return render(request, 'upload_error.html', {'error_msg': error_msg})
-            #         else:
-            #             print('Срабатывает исключение 6')
-            #             print(f"Last uploaded file: {uploaded_file.name}")
-            #             print(f"Error: {error}")
-            #
-
-
-
-
-
-
 
     else:
         form = UploadFileForm()
-
-    # # Interface for displaying the checklist in the template
-    #
-    # current_year = datetime.now().year
-    # current_quarter = (datetime.now().month - 1) // 3 + 1
-    # current_quarter_string = f'{current_year % 100}Q{current_quarter}'
-
-    # )  # all files from the checklist created in the admin panel
-
-    #checklist = UploadedFile.objects.all()  # all uploaded files from the form via the interface
-    #
-    # uploaded_files_names = [uploaded_file.file for uploaded_file in
-    #                   checklist]  # a list of file names that have already been uploaded.
-
-
+        uploaded_files = UploadedFile.objects.all()
+        uploaded_files_names = [uploaded_file.file for uploaded_file in uploaded_files]
 
 
 
     context = {
         'form': form,
-        'checklist':uploaded_files,
         'uploaded_files_names':uploaded_files_names,
         'expected_files_all': expected_files_all,
 
@@ -312,3 +227,5 @@ def upload_success(request):
         'records_inserted': records_inserted,
     }
     return render(request, 'upload_success.html', context)
+
+
